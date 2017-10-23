@@ -32,7 +32,7 @@ public class CSVServiceTest {
     public void getHello() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/csv/v1/hello/janne") .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(Matchers.equalTo("Hello janne!")));
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.equalTo("{\"Hello\": \"janne!\"}")));
     }
 
 }

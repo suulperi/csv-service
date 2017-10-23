@@ -25,7 +25,7 @@ public class APIController {
 
     private Logger logger = LoggerFactory.getLogger(APIController.class);
 
-    @RequestMapping(value = "/csv/v1/read/{filename}")
+    @RequestMapping(value = "/csv/v1/read/{filename}", produces= MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     public ResponseEntity<List<PersonPTO>> readPersonCSV(@PathVariable(name = "filename")String filename) {
         logger.info("Filename: "+filename);
         try {
@@ -38,7 +38,7 @@ public class APIController {
         }
     }
 
-    @RequestMapping(value = "/csv/v1/read/{filename}/{id}")
+    @RequestMapping(value = "/csv/v1/read/{filename}/{id}", produces= MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     public ResponseEntity<PersonPTO> readPersonCSVWithID(@PathVariable(name = "filename")String filename, @PathVariable(name = "id")int id) {
         logger.info("Filename: "+filename);
         try {
@@ -65,8 +65,8 @@ public class APIController {
     }
 
     @RequestMapping(value="/csv/v1/hello/{name}", produces= MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
-    public String hello(@PathVariable(value="name", required=true)String name) {
-        return "Hello "+name+"!";
+    public ResponseEntity<String> hello(@PathVariable(value="name", required=true)String name) {
+        return new ResponseEntity("{\"Hello\": \""+name+"!\"}", HttpStatus.OK);
     }
 
 }
