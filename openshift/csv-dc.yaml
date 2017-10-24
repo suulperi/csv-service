@@ -2,16 +2,10 @@ apiVersion: v1
 kind: DeploymentConfig
 metadata:
   annotations:
-    openshift.io/generated-by: OpenShiftNewApp
-  creationTimestamp: 2017-10-23T12:11:23Z
   generation: 4
   labels:
     app: csv-service
   name: csv-service
-  namespace: myproject
-  resourceVersion: "5430"
-  selfLink: /oapi/v1/namespaces/myproject/deploymentconfigs/csv-service
-  uid: 4986b692-b7eb-11e7-b6ef-c85b76847344
 spec:
   replicas: 1
   selector:
