@@ -31,6 +31,7 @@ public class APIController {
     public APIController() {
         if(System.getenv(this.DATA_FOLDER_KEY) != null) {
             this.dataFolder = System.getenv(this.DATA_FOLDER_KEY);
+            this.logger.info("Data folder is "+this.dataFolder);
         } else {
             this.logger.warn("Env variable "+this.DATA_FOLDER_KEY+" not set! Setting data folder as /.");
             this.dataFolder = "/";
