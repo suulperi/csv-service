@@ -18,12 +18,4 @@ public class CSVService {
         SpringApplication.run(CSVService.class, args);
     }
 
-    @Bean
-    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-        return args -> {
-            String[] beanNames = ctx.getBeanDefinitionNames();
-            Arrays.sort(beanNames);
-        };
-    }
-
 }

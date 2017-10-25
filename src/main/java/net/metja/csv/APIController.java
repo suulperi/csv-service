@@ -24,16 +24,16 @@ import java.util.List;
 @RestController
 public class APIController {
 
-    private final String DATA_FOLDER_KEY = "DATA_FOLDER";
+    public static final String DATA_FOLDER_KEY = "DATA_FOLDER";
     private Logger logger = LoggerFactory.getLogger(APIController.class);
     private String dataFolder = null;
 
     public APIController() {
-        if(System.getenv(this.DATA_FOLDER_KEY) != null) {
-            this.dataFolder = System.getenv(this.DATA_FOLDER_KEY);
+        if(System.getenv(DATA_FOLDER_KEY) != null) {
+            this.dataFolder = System.getenv(DATA_FOLDER_KEY);
             this.logger.info("Data folder is "+this.dataFolder);
         } else {
-            this.logger.warn("Env variable "+this.DATA_FOLDER_KEY+" not set! Setting data folder as /.");
+            this.logger.warn("Env variable "+DATA_FOLDER_KEY+" not set! Setting data folder as /.");
             this.dataFolder = "/";
         }
     }
