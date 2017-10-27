@@ -6,6 +6,7 @@ import au.com.bytecode.opencsv.bean.CsvToBean;
 import net.metja.csv.pto.PersonPTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.ws.Response;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
@@ -27,6 +29,7 @@ public class APIController {
     public static final String DATA_FOLDER_KEY = "DATA_FOLDER";
     private Logger logger = LoggerFactory.getLogger(APIController.class);
     private String dataFolder = null;
+    private TunableHealthIndicator tunableHealthIndicator;
 
     public APIController() {
         if(System.getenv(DATA_FOLDER_KEY) != null) {
@@ -85,6 +88,7 @@ public class APIController {
      */
     @RequestMapping(value="/csv/v1/hello/{name}", produces= MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     public ResponseEntity<String> hello(@PathVariable(value="name", required=true)String name) {
+        this.logger.info("Hello "+name+"!");
         return new ResponseEntity("{ \"hello\":\""+name+"!\" }", HttpStatus.OK);
     }
 
@@ -106,6 +110,31 @@ public class APIController {
             }
         }).start();
         return new ResponseEntity<String>("{\"load\": \""+time+"s\"}", HttpStatus.OK);
+    }
+
+    /**
+     * Turn health of this app bad.
+     *
+     * @return
+     */
+    @RequestMapping(value="/csv/v1/makeUnhealthy", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> makeUnhealthy() {
+        if(this.tunableHealthIndicator != null) {
+            this.tunableHealthIndicator.setOk(false);
+            return new ResponseEntity<String>("{\"Healty\": \"false\"}", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value="/csv/v1", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> index() {
+        return new ResponseEntity<String>("<html><head><title>CSV Service</title></head><body><h1>Hello World!</h1></body></html>", HttpStatus.OK);
+    }
+
+    @Autowired
+    public void setTunableHealthIndicator(TunableHealthIndicator tunableHealthIndicator) {
+        this.tunableHealthIndicator = tunableHealthIndicator;
     }
 
 }
