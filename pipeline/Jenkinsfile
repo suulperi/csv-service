@@ -34,7 +34,7 @@ node('maven') {
     stage ('Run tests') {
         // do tests
         sleep 15
-        sh 'curl http://csv-service.csv-service-test:8080/csv/v1/hello/Janne'
+        //sh 'curl http://csv-service.csv-service-test:8080/csv/v1/hello/Janne'
     }
     stage ('Tag image to prod ready') {
         input 'Tag ProdReady?'
