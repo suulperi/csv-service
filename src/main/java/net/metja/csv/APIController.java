@@ -44,31 +44,41 @@ public class APIController {
     @RequestMapping(value = "/csv/v1/read/{filename}", produces= MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     public ResponseEntity<List<PersonPTO>> readPersonCSV(@PathVariable(name = "filename")String filename) {
         logger.info("Filename: "+filename);
-        try {
-            CSVReader csvReader = new CSVReader(new FileReader(new File(this.dataFolder, filename)), ',', '"', 0);
-            CsvToBean<PersonPTO> csv = new CsvToBean<>();
-            List<PersonPTO> persons = csv.parse(this.setColumnMapping(), csvReader);
-            return new ResponseEntity<List<PersonPTO>>(persons, HttpStatus.OK);
-        } catch(java.io.FileNotFoundException e) {
-            return new ResponseEntity<List<PersonPTO>>(HttpStatus.BAD_REQUEST);
+        File source = new File(this.dataFolder, filename);
+        if(source.exists()) {
+            try {
+                CSVReader csvReader = new CSVReader(new FileReader(source), ',', '"', 0);
+                CsvToBean<PersonPTO> csv = new CsvToBean<>();
+                List<PersonPTO> persons = csv.parse(this.setColumnMapping(), csvReader);
+                return new ResponseEntity<List<PersonPTO>>(persons, HttpStatus.OK);
+            } catch (java.io.FileNotFoundException e) {
+                return new ResponseEntity<List<PersonPTO>>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<List<PersonPTO>>(HttpStatus.NOT_FOUND);
         }
     }
 
     @RequestMapping(value = "/csv/v1/read/{filename}/{id}", produces= MediaType.APPLICATION_JSON_VALUE, method= RequestMethod.GET)
     public ResponseEntity<PersonPTO> readPersonCSVWithID(@PathVariable(name = "filename")String filename, @PathVariable(name = "id")int id) {
         logger.info("Filename: "+filename);
-        try {
-            CSVReader csvReader = new CSVReader(new FileReader(new File(this.dataFolder, filename)), ',', '"', 0);
-            CsvToBean<PersonPTO> csv = new CsvToBean<>();
-            List<PersonPTO> persons = csv.parse(this.setColumnMapping(), csvReader);
-            for(PersonPTO person: persons) {
-                if(person.getId() == id) {
-                    return new ResponseEntity<PersonPTO>(person, HttpStatus.OK);
+        File source = new File(this.dataFolder, filename);
+        if(source.exists()) {
+            try {
+                CSVReader csvReader = new CSVReader(new FileReader(source), ',', '"', 0);
+                CsvToBean<PersonPTO> csv = new CsvToBean<>();
+                List<PersonPTO> persons = csv.parse(this.setColumnMapping(), csvReader);
+                for (PersonPTO person : persons) {
+                    if (person.getId() == id) {
+                        return new ResponseEntity<PersonPTO>(person, HttpStatus.OK);
+                    }
                 }
+                return new ResponseEntity<PersonPTO>(HttpStatus.NOT_FOUND);
+            } catch (java.io.FileNotFoundException e) {
+                return new ResponseEntity<PersonPTO>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } else {
             return new ResponseEntity<PersonPTO>(HttpStatus.NOT_FOUND);
-        } catch(java.io.FileNotFoundException e) {
-            return new ResponseEntity<PersonPTO>(HttpStatus.BAD_REQUEST);
         }
     }
 
