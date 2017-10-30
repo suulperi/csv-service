@@ -14,7 +14,7 @@ the OpenJDK 1.8 image from Redhat registry.
 
 ### Login to Openshift
 
-`oc login -u $username https://$your-ocp-master-host:8443/``
+`oc login -u $username https://$your-ocp-master-host:8443/`
 
 ### Create and Prepare Projects
 

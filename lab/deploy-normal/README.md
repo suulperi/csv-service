@@ -29,7 +29,7 @@ __Note:__ In the instructions below replace _$username_ with your own username o
 
 Create a new project with the following command
 
- oc new-project $username-csv --display-name="$username csv"
+`oc new-project $username-csv --display-name="$username csv"'
 
 You will automatically start using the freshly created project.
 
