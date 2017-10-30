@@ -88,9 +88,7 @@ with no content.
 
 There are two ways to create a persistent volume:
 
-1. Create from a yaml-file: `oc create -f pvc/csv-claim.yaml`. Before you
-create the claim edit the __claim name__ in the file to suit your csv-claim
-and project name.
+1. Create from a yaml-file: `oc create -f pvc/csv-claim.yaml`.
 
 2. Use the web console: _Project Overview -> Storage -> Create Storage_. On the
 page give it a __Name__ (csv-claim) and select __Access Mode__, in
