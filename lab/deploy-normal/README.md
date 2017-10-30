@@ -23,7 +23,7 @@ __Note:__ In the instructions below replace _$username_ with your own username o
 
 ### Login to Openshift
 
- oc login -u $username https://$your-ocp-master-host:8443/
+`oc login -u $username https://$your-ocp-master-host:8443/`
 
 ### Create Project
 
@@ -49,23 +49,23 @@ We are using source-to-image (S2I) functionality to build the application.
 
 First you need to create a new build:
 
- oc new-build -i openjdk18-openshift:latest --name=csv-s2i -l app=csv-service https://github.com/jmetso/csv-service.git
+`oc new-build -i openjdk18-openshift:latest --name=csv-s2i -l app=csv-service https://github.com/jmetso/csv-service.git`
 
 A build for the application is triggered automatically. You can follow the build
 with 'oc logs -f bc/csv-s2i' or via the web console. After the build is
 finished successfully we can deploy the application image:
 
- oc new-app -i csv-s2i --name=csv-service -l app=csv-service
+`oc new-app -i csv-s2i --name=csv-service -l app=csv-service`
 
 ### Expose a Route to the Application
 
 You expose a route with the following command.
 
- oc expose service csv-service --hostname=csv-service-$username-csv.$appdomain --path=/csv/v1 -l app=csv-service
+`oc expose service csv-service --hostname=csv-service-$username-csv.$appdomain --path=/csv/v1 -l app=csv-service`
 
 Verify that a route was created
 
- curl http://csv-service-$username-csv.$appdomain/csv/v1
+`curl http://csv-service-$username-csv.$appdomain/csv/v1`
 
 or open the same url in a browser tab. You should get a Hello World! web page.
 
@@ -101,7 +101,7 @@ Again there are two options:
 
 1. Mount the claim to the deployment configuration via command line:
 
- oc volume dc/csv-service --add --mount-path=/data --claim-name=csv-claim --name=data-volume
+`oc volume dc/csv-service --add --mount-path=/data --claim-name=csv-claim --name=data-volume`
 
 2. Using the web console: _Project Overview -> Applications -> Deployments -> csv-service -> Add storage_.
 In the __Add Storage__ page select your storage (csv-claim) and give
@@ -113,7 +113,7 @@ __NOTE:__ Adding the persistent volume to a path will replace all contents of th
 
 ### Set environment variable to direct the application to the correct data folder
 
- oc set env dc/csv-service DATA_FOLDER=/data
+`oc set env dc/csv-service DATA_FOLDER=/data`
 
 This will cause the pod to redeploy automatically.
 
@@ -121,23 +121,23 @@ This will cause the pod to redeploy automatically.
 
 After the pod is back up and running, download a data file:
 
- mkdir data
+`mkdir data`
 
- curl https://raw.githubusercontent.com/jmetso/csv-service/master/src/test/resources/persons -o data/persons
+`curl https://raw.githubusercontent.com/jmetso/csv-service/master/src/test/resources/persons -o data/persons`
 
 Find the name of the pod:
 
- oc get pods | grep csv
+`oc get pods | grep csv`
 
 Copy the pod name to the following command
 
- oc rsync data/ $podname:/data
+`oc rsync data/ $podname:/data`
 
 Log in to the pod and see that the data file is in the correct folder
 
- oc rsh $podname
+`oc rsh $podname`
 
- ls /data
+`ls /data`
 
 You should see the _person_ file in the folder.
 
@@ -146,11 +146,11 @@ You should see the _person_ file in the folder.
 To demonstrate persistence we are going to create another file outside the
 persistent volume. Log in to the pod:
 
- oc rsh $podname
+`oc rsh $podname`
 
 In the terminal, create file:
 
- touch /deployments/test.file
+`touch /deployments/test.file`
 
 After you have created the file log out from the shell and kill the pod:
 
@@ -160,9 +160,9 @@ Wait for a new pod to appear for the same application. This should also happen a
 
 Login to the new pod and look for the files:
 
- ls /data
+`ls /data`
 
- ls /home/jboss
+`ls /home/jboss`
 
 You should see that file _/data/persons_ still exists, but file _/home/jboss/test.file_
 does not. The second file disappeared because it is not part of the source image
@@ -196,12 +196,12 @@ autoscaler will automatically start a new pod. When the cpu use will drop down,
 the application will be scaled back. The maximum amount of pods allowed will be
 two and the minumum one.
 
- oc autoscale dc/csv-service --cpu-percent=80 --max=2
+`oc autoscale dc/csv-service --cpu-percent=80 --max=2`
 
 To demonstrate autoscaling, the application is capable of generating load. trigger
 the load generation for two minutes with the following url (with either curl or web browser):
 
- http://csv-service-$username-csv.$appdomain/csv/v1/load/120
+`http://csv-service-$username-csv.$appdomain/csv/v1/load/120`
 
 Switch to project _Overview_ and follow that the number of pods for csv-service
 will first scale up to two and the scale back down to one after two minutes.
@@ -258,4 +258,4 @@ pod be restarted.
 
 Delete your project with:
 
- oc delete project $username-csv
+`oc delete project $username-csv`
