@@ -29,7 +29,7 @@ __Note:__ In the instructions below replace _$username_ with your own username o
 
 Create a new project with the following command
 
-`oc new-project $username-csv --display-name="$username csv"'
+`oc new-project $username-csv --display-name="$username csv"`
 
 You will automatically start using the freshly created project.
 
@@ -37,11 +37,11 @@ You will automatically start using the freshly created project.
 
 Check that the openjdk18 image is available:
 
- oc get is -n openshift | grep openjdk18
+`oc get is -n openshift | grep openjdk18`
 
 If the image is not available you need to import the image
 
- oc import-image redhat-openjdk18-openshift/openjdk18-openshift --from=registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift --confirm
+`oc import-image redhat-openjdk18-openshift/openjdk18-openshift --from=registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift --confirm`
 
 ### Building and Deploying the Application
 
@@ -70,7 +70,7 @@ Verify that a route was created
 or open the same url in a browser tab. You should get a Hello World! web page.
 
 The route above uses both path based routing and domain based routing. If you try
-to access 'http://csv-service-$username-csv.$appdomain/' you will get a _Application Not Available_ error.
+to access `http://csv-service-$username-csv.$appdomain/` you will get a _Application Not Available_ error.
 
 ### Create and Add a Persistent Volume to the Application
 
