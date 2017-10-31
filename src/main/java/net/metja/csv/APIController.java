@@ -137,6 +137,28 @@ public class APIController {
         }
     }
 
+    /**
+     * Crash the application
+     *
+     * @return
+     */
+    @RequestMapping(value="/csv/v1/crash", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> crash() {
+        logger.info("Crashing app in 5 seconds!");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                    System.exit(-1);
+                } catch(InterruptedException e) {
+                    logger.warn("Unable to sleep!");
+                }
+            }
+        }).start();
+        return new ResponseEntity<String>("Crashing app in 5 seconds!", HttpStatus.OK);
+    }
+
     @RequestMapping(value="/csv/v1", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
     public ResponseEntity<String> index() {
         return new ResponseEntity<String>("<html><head><style>h1 { text-align: center }</style><title>CSV Service</title></head><body><h1>Hello World!</h1></body></html>", HttpStatus.OK);
