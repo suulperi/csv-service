@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewBuild
+  creationTimestamp: null
+  labels:
+    app: csv-service-pipeline
+  name: csv-pipeline
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output: {}
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    type: None
+  strategy:
+    jenkinsPipelineStrategy:
+      jenkinsfile: |-
+        node('maven') {
+            stage ('Checkout') {
+                git 'https://github.com/jmetso/csv-service.git'
+            }
+            stage ('Prepare') {
+                sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
+                sh 'oc delete bc,dc,svc -l app=csv-service -n csv-service-dev'
+                //sh 'oc delete bc,dc,svc,route -l app=csv-service -n csv-service-dev'
+            }
+            stage ('Maven build') {
+                // Run the maven build
+                sh 'mvn clean package'
+            }
+            stage ('Openshift build') {
+                // create build config
+                sh 'oc new-build --name=csv-s2i-build --image-stream=openjdk18-openshift --binary=true -l app=csv-service -n csv-service-dev || true'
+                sh 'cp target/csv-service-*.jar oc-build/deployments'
+                // start build
+                sh 'oc start-build csv-s2i-build --from-dir=oc-build/deployments --wait=true -n csv-service-dev'
+                openshiftVerifyBuild apiURL: '', authToken: '', bldCfg: 'csv-s2i-build', checkForTriggeredDeployments: 'false', namespace: 'csv-service-dev', verbose: 'false', waitTime: ''
+            }
+            stage ('Deploy DEV') {
+                sh 'oc new-app -i csv-s2i-build --name=csv-service -l app=csv-service'
+                //openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'csv-service-dev', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+            }
+            stage ('Tag image to test ready') {
+                openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-s2i-build', destTag: 'testReady', destinationAuthToken: '', destinationNamespace: 'csv-service-dev', namespace: 'csv-service-dev', srcStream: 'csv-s2i-build', srcTag: 'latest', verbose: 'false'
+            }
+            stage ('Deploy to Test') {
+                sh 'oc delete dc,svc -l app=csv-service -n csv-service-test'
+                sh 'oc new-app -i csv-service-dev/csv-s2i-build:testReady --name=csv-service -l app=csv-service -n csv-service-test'
+                openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'csv-service-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+            }
+            stage ('Run tests') {
+                // do tests
+                sleep 15
+                sh 'curl http://csv-service.csv-service-test:8080/csv/v1/hello/Janne'
+            }
+            stage ('Tag image to prod ready') {
+                input 'Tag ProdReady?'
+                openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-service', destTag: 'prodReady', destinationAuthToken: '', destinationNamespace: 'csv-service-test', namespace: 'csv-service-dev', srcStream: 'csv-s2i-build', srcTag: 'testReady', verbose: 'false'
+            }
+            stage ('Deploy to Prod') {
+                sh 'oc delete dc,svc -l app=csv-service -n csv-service-prod'
+                sh 'oc new-app -i csv-service-test/csv-service:prodReady --name=csv-service -l app=csv-service -n csv-service-prod'
+                openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'csv-service-prod', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+            }
+        }
+    type: JenkinsPipeline
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: pG5-8S1Gb7sQtm7qHwqh
+    type: GitHub
+  - generic:
+      secret: ZiQLARR-YCMCTWpA-yVd
+    type: Generic
+  - type: ConfigChange
+status:
+  lastVersion: 0
