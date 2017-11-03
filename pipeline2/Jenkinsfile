@@ -1,0 +1,53 @@
+node('maven') {
+    stage ('Checkout') {
+        git 'https://github.com/jmetso/csv-service.git'
+    }
+    stage ('Prepare') {
+        sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
+        sh 'oc delete bc -l app=csv-service -n skatdemo-build'
+        sh 'oc delete dc,svc -l app=csv-service -n skatdemo-dev'
+    }
+    stage ('Maven build') {
+        // Run the maven build
+        sh 'mvn clean package'
+    }
+    stage ('Openshift build-image') {
+        // create build config
+        sh 'oc new-build --name=csv-s2i-build --image-stream=redhat-openjdk18-openshift --binary=true -l app=csv-service -n skatdemo-build || true'
+        sh 'cp target/csv-service-*.jar oc-build/deployments'
+        // start build
+        sh 'oc start-build csv-s2i-build --from-dir=oc-build/deployments --wait=true -n skatdemo-build'
+        openshiftVerifyBuild apiURL: '', authToken: '', bldCfg: 'csv-s2i-build', checkForTriggeredDeployments: 'false', namespace: 'skatdemo-build', verbose: 'false', waitTime: ''
+    }
+    stage ('Deploy DEV') {
+        sh 'oc new-app -i skatdemo-build/csv-s2i-build --name=csv-service -l app=csv-service -n skatdemo-dev'
+        openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'skatdemo-dev', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+    }
+    stage ('Run unit tests') {
+        // do tests
+        sleep 15
+    }
+    stage ('Tag image as ready for test') {
+        openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-s2i-build', destTag: 'testReady', destinationAuthToken: '', destinationNamespace: 'skatdemo-dev', namespace: 'skatdemo-dev', srcStream: 'csv-s2i-build', srcTag: 'latest', verbose: 'false'
+    }
+    stage ('Deploy to Test') {
+        sh 'oc delete dc,svc -l app=csv-service -n skatdemo-test'
+        sh 'oc new-app -i skatdemo-dev/csv-s2i-build:testReady --name=csv-service -l app=csv-service -n skatdemo-test'
+        openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'skatdemo-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+    }
+    stage ('Run Integration Tests') {
+        // do tests
+        sleep 15
+        //sh 'curl http://csv-service.csv-service-test:8080/csv/v1/hello/Janne'
+    }
+    stage ('Tag Image as Ready for Production') {
+        input 'Approve image as ready for production?'
+        openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-service', destTag: 'prodReady', destinationAuthToken: '', destinationNamespace: 'skatdemo-test', namespace: 'skatdemo-dev', srcStream: 'csv-s2i-build', srcTag: 'testReady', verbose: 'false'
+    }
+    stage ('Deploy to Production') {
+        //sh 'oc delete dc,svc,route -l app=csv-service -n csv-service-prod'
+        //sh 'oc new-app -i csv-service-test/csv-service:prodReady --name=csv-service -l app=csv-service -n csv-service-prod'
+        //openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'csv-service-prod', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+        //sh 'oc expose service csv-service --path="/csv/v1" -l app=csv-service -n csv-service-prod'
+    }
+}
