@@ -1,13 +1,11 @@
 node('maven') {
-    stage ('Checkout') {
-        git 'https://github.com/jmetso/csv-service.git'
-    }
     stage ('Prepare') {
         sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
         sh 'oc delete bc -l app=csv-service -n skatdemo-build'
         sh 'oc delete dc,svc -l app=csv-service -n skatdemo-dev'
     }
     stage ('Maven build') {
+        git 'https://github.com/jmetso/csv-service.git'
         // Run the maven build
         sh 'mvn clean package'
     }
@@ -28,7 +26,7 @@ node('maven') {
         sleep 15
     }
     stage ('Tag image as ready for test') {
-        openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-s2i-build', destTag: 'testReady', destinationAuthToken: '', destinationNamespace: 'skatdemo-dev', namespace: 'skatdemo-dev', srcStream: 'csv-s2i-build', srcTag: 'latest', verbose: 'false'
+        openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-s2i-build', destTag: 'testReady', destinationAuthToken: '', destinationNamespace: 'skatdemo-dev', namespace: 'skatdemo-build', srcStream: 'csv-s2i-build', srcTag: 'latest', verbose: 'false'
     }
     stage ('Deploy to Test') {
         sh 'oc delete dc,svc -l app=csv-service -n skatdemo-test'
