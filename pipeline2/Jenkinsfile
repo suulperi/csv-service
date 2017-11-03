@@ -32,6 +32,7 @@ node('maven') {
         sh 'oc delete dc,svc -l app=csv-service -n skatdemo-test'
         sh 'oc new-app -i skatdemo-dev/csv-s2i-build:testReady --name=csv-service -l app=csv-service -n skatdemo-test'
         openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'skatdemo-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+        sh 'oc expose service csv-service --path="/csv/v1" -l app=csv-service -n skatdemo-test'
     }
     stage ('Run Integration Tests') {
         // do tests
@@ -42,10 +43,10 @@ node('maven') {
         input 'Approve image as ready for production?'
         openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-service', destTag: 'prodReady', destinationAuthToken: '', destinationNamespace: 'skatdemo-test', namespace: 'skatdemo-dev', srcStream: 'csv-s2i-build', srcTag: 'testReady', verbose: 'false'
     }
-    stage ('Deploy to Production') {
+    //stage ('Deploy to Production') {
         //sh 'oc delete dc,svc,route -l app=csv-service -n csv-service-prod'
         //sh 'oc new-app -i csv-service-test/csv-service:prodReady --name=csv-service -l app=csv-service -n csv-service-prod'
         //openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'csv-service-prod', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
         //sh 'oc expose service csv-service --path="/csv/v1" -l app=csv-service -n csv-service-prod'
-    }
+    //}
 }
