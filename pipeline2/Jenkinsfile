@@ -12,9 +12,9 @@ node('maven') {
     stage ('Openshift build-image') {
         // create build config
         sh 'oc new-build --name=csv-s2i-build --image-stream=redhat-openjdk18-openshift --binary=true -l app=csv-service -n skatdemo-build || true'
-        sh 'cp target/csv-service-*.jar oc-build/deployments'
+        //sh 'cp target/csv-service-*.jar oc-build/deployments'
         // start build
-        sh 'oc start-build csv-s2i-build --from-dir=oc-build/deployments --wait=true -n skatdemo-build'
+        sh 'oc start-build csv-s2i-build --from-dir=target --wait=true -n skatdemo-build'
         openshiftVerifyBuild apiURL: '', authToken: '', bldCfg: 'csv-s2i-build', checkForTriggeredDeployments: 'false', namespace: 'skatdemo-build', verbose: 'false', waitTime: ''
     }
     stage ('Deploy DEV') {
