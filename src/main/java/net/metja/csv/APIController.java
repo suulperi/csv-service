@@ -161,7 +161,7 @@ public class APIController {
 
     @RequestMapping(value="/csv/v1", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
     public ResponseEntity<String> index() {
-        return new ResponseEntity<String>("<html><head><style>h1 { text-align: center; background-color: #00f }</style><title>CSV Service</title></head><body><h1>Hello Wordl!</h1></body></html>", HttpStatus.OK);
+        return new ResponseEntity<String>("<html><head><style>h1 { text-align: center } body { background-color= #00f } </style><title>CSV Service</title></head><body><h1>Hello Wordl!</h1></body></html>", HttpStatus.OK);
     }
 
     @Autowired
