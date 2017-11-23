@@ -7,7 +7,9 @@ For the demo you need three projects set up in your Openshift environment: skatd
 To create the projects, run the follwing commands:
 
 `oc new-project skatdemo-build --display-name="Build project for demo"`
+
 `oc new-project skatdemo-dev --display-name="Development project for demo"`
+
 `oc new-project skatdemo-test --display-name="Test project for demo"`
 
 ## Setting up jenkins to build project (optional)
@@ -21,7 +23,9 @@ Navigate to the project, and click Add to Project -> Browse Catalog -> Continuou
 We are going to assume that jenkins will be using a specific service account for running the jenkins pod: 'jenkins'.
 
 `oc policy add-role-to-user edit system:serviceaccount:skatdemo-build:jenkins -n skatdemo-build`
+
 `oc policy add-role-to-user edit system:serviceaccount:skatdemo-build:jenkins -n skatdemo-dev`
+
 `oc policy add-role-to-user edit system:serviceaccount:skatdemo-build:jenkins -n skatdemo-test`
 
 ## Creating the pipeline
