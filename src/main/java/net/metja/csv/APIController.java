@@ -14,17 +14,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.*;
 
 import javax.xml.ws.Response;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Janne Metso on 7/13/17.
  */
 @RestController
+
+
 public class APIController {
+
+    @Value("${OPENSHIFT_ENV_VAR:Welcome}")
+    public String OCPenv;
 
     public static final String DATA_FOLDER_KEY = "DATA_FOLDER";
     private Logger logger = LoggerFactory.getLogger(APIController.class);
@@ -161,7 +168,7 @@ public class APIController {
 
     @RequestMapping(value="/csv/v1", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
     public ResponseEntity<String> index() {
-        return new ResponseEntity<String>("<html><head><style>h1 { text-align: center } body { background-color: #fff } </style><title>CSV Service</title></head><body><h1>Hello World!</h1></body></html>", HttpStatus.OK);
+        return new ResponseEntity<String>("<html><head><style>h1 { text-align: center } body { background-color: #fff } </style><title>CSV Service</title></head><body><h1>" + OCPenv  + "</h1></body></html>", HttpStatus.OK);
     }
 
     @Autowired
