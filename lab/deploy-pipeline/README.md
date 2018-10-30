@@ -102,11 +102,11 @@ deployed to production.
 
 We will expose a route to the production application with the following command:
 
-`oc expose service csv-service --hostname=csv-service-csv-service-prod.$appdomain --path=/csv/v1 -l app=csv-service -n app=csv-service-prod`
+`oc expose service csv-service --hostname=csv-service-csv-service-prod.$appdomain --path=/csv/api/v1 -l app=csv-service -n app=csv-service-prod`
 
 Verify that a route was created:
 
-`curl http://csv-service-csv-service-prod.$appdomain/csv/v1`
+`curl http://csv-service-csv-service-prod.$appdomain/csv/api/v1`
 
 or open the same url in a browser tab. You should get a Hello World! web page.
 

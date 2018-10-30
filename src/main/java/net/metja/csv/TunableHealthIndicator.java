@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 
 /**
- * Created by jmetso on 10/27/17.
+ * Created by Janne Metso on 2017-10-27.
  */
 @Component
 public class TunableHealthIndicator extends AbstractHealthIndicator {

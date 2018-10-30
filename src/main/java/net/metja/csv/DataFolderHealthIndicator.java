@@ -9,7 +9,7 @@ import java.io.File;
 /**
  * Data folder health indicator.
  *
- * Created by jmetso on 2017-10-25.
+ * Created by Janne Metso on 2017-10-25.
  */
 @Component
 public class DataFolderHealthIndicator extends AbstractHealthIndicator {

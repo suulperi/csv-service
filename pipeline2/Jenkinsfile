@@ -29,10 +29,10 @@ node('maven') {
         openshiftTag alias: 'false', apiURL: '', authToken: '', destStream: 'csv-s2i-build', destTag: 'testReady', destinationAuthToken: '', destinationNamespace: 'skatdemo-dev', namespace: 'skatdemo-build', srcStream: 'csv-s2i-build', srcTag: 'latest', verbose: 'false'
     }
     stage ('Deploy to Test') {
-        sh 'oc delete dc,svc -l app=csv-service -n skatdemo-test'
+        sh 'oc delete dc,svc,route -l app=csv-service -n skatdemo-test'
         sh 'oc new-app -i skatdemo-dev/csv-s2i-build:testReady --name=csv-service -l app=csv-service -n skatdemo-test'
         openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'csv-service', namespace: 'skatdemo-test', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
-        //sh 'oc expose service csv-service --path="/csv/v1" -l app=csv-service -n skatdemo-test'
+        sh 'oc expose service csv-service --path="/csv/v1" -l app=csv-service -n skatdemo-test'
     }
     stage ('Run Integration Tests') {
         // do tests

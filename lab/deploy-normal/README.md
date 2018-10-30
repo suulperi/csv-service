@@ -61,11 +61,11 @@ finished successfully we can deploy the application image:
 
 You expose a route with the following command.
 
-`oc expose service csv-service --hostname=csv-service-$username-csv.$appdomain --path=/csv/v1 -l app=csv-service`
+`oc expose service csv-service --hostname=csv-service-$username-csv.$appdomain --path=/csv/api/v1 -l app=csv-service`
 
 Verify that a route was created
 
-`curl http://csv-service-$username-csv.$appdomain/csv/v1`
+`curl http://csv-service-$username-csv.$appdomain/csv/api/v1`
 
 or open the same url in a browser tab. You should get a Hello World! web page.
 
@@ -199,7 +199,7 @@ two and the minumum one.
 To demonstrate autoscaling, the application is capable of generating load. trigger
 the load generation for two minutes with the following url (with either curl or web browser):
 
-`http://csv-service-$username-csv.$appdomain/csv/v1/load/120`
+`http://csv-service-$username-csv.$appdomain/csv/api/v1/load/120`
 
 Switch to project _Overview_ and follow that the number of pods for csv-service
 will first scale up to two and the scale back down to one after two minutes.
