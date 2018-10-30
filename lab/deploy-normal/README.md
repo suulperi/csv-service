@@ -216,7 +216,7 @@ We will add health checks via the web console.
 4. Choose _Edit Health Checks_ from _Actions_ drop down menu
 5. Click _Add readiness probe_
 6. Verify that _Type_ is *HTTP GET*
-7. Type */csv/v1/hello/readiness-probe* to _Path_
+7. Type */csv/api/v1/hello/readiness-probe* to _Path_
 8. Verify that port is *8080*
 9. Add an initial delay of *10* seconds
 10. Click _Add liveness probe_
@@ -246,7 +246,7 @@ to see it in practice:
 2. Click on the available pod.
 3. Note that _Restart Count_ is zero.
 4. Open another tab in your browser and type
-in _http://csv-service-$username-csv.$appdomain/csv/v1/makeUnhealthy_ as the
+in _http://csv-service-$username-csv.$appdomain/csv/api/v1/makeUnhealthy_ as the
 address and hit enter. This will cause the application status to switch to unhealthy and the
 pod be restarted.
 5. Switch back to the previous tab and observer the restart count increase to one.
