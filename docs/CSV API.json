@@ -1,0 +1,276 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "CSV API",
+    "description": "CSV Service API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/csv/api/v1/read/{filename}": {
+      "summary": "Read all items from file",
+      "get": {
+        "operationId": "read-get",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "description": "Name of file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonPTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "File found but cannot be read"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "filename",
+          "in": "path",
+          "description": "Name of file",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/csv/api/v1/read/{filename}/{id}": {
+      "summary": "Read single person from file",
+      "get": {
+        "operationId": "read-single",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonPTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If either file or id is not found",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "When file found but cannot be read.",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "filename",
+          "in": "path",
+          "description": "Name of file",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Id of person in file",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "/csv/api/v1/hello/{name}": {
+      "summary": "Hello world",
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                },
+                "examples": {
+                  "Example": {
+                    "value": {
+                      "hello": "User!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/csv/api/v1/load/{time}": {
+      "summary": "Generate load",
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "time",
+          "in": "path",
+          "description": "Number of seconds",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "/csv/api/v1/makeUnhealthy": {
+      "summary": "Make app report as unhealthy",
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MakeUnhealthyResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No tunable health indicator present",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/csv/api/v1/crash": {
+      "summary": "Make application crash",
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/xml": {
+                "examples": {
+                  "Example": {
+                    "value": "Crashing app in 5 seconds!"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PersonPTO": {
+        "title": "Root Type for PersonPTO",
+        "description": "The root of the PersonPTO type's schema.",
+        "required": [
+          "id",
+          "firstname",
+          "lastname"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          }
+        },
+        "example": "{\n    \"id\": \"1\",\n    \"firstname\": \"Matti\",\n    \"lastname\": \"Mikkonen\"\n}"
+      },
+      "HelloResponse": {
+        "title": "Root Type for HelloResponse",
+        "description": "The root of the HelloResponse type's schema.",
+        "type": "object",
+        "properties": {
+          "hello": {
+            "type": "string"
+          }
+        },
+        "example": "{\n    \"hello\": \"name!\"\n}"
+      },
+      "LoadResponse": {
+        "title": "Root Type for LoadResponse",
+        "description": "The root of the LoadResponse type's schema.",
+        "type": "object",
+        "properties": {
+          "load": {
+            "type": "string"
+          }
+        },
+        "example": "{\n    \"load\": \"100s\"\n}"
+      },
+      "MakeUnhealthyResponse": {
+        "title": "Root Type for MakeUnhealthyResponse",
+        "description": "The root of the MakeUnhealthyResponse type's schema.",
+        "type": "object",
+        "properties": {
+          "Healty": {
+            "type": "string"
+          }
+        },
+        "example": "{\"Healty\": \"false\"}"
+      }
+    }
+  }
+}
