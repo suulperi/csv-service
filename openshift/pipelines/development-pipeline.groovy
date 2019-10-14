@@ -118,6 +118,13 @@ pipeline {
                 rm.status()
             } // timeout
 
+            def devSvc = openshift.selector('svc', APP_NAME)
+            if(devSvc.exist()) {
+              openshift.replace('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+            } else {
+              openshift.create('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+            }
+
             createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
           } // withProject
         } // script
