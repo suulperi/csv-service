@@ -2,6 +2,7 @@
 
 // used environment variables
 // GIT_URL
+// GIT_BRANCH
 // GIT_CREDENTIALS_ID
 APP_NAME="dev-${APP_NAME}"
 BUILD_CONFIG_NAME="${APP_NAME}-s2i-build"
@@ -29,7 +30,7 @@ pipeline {
     stage('Clone') {
       steps {
         dir('src') {
-          git branch: 'development', url: "${GIT_URL}"
+          git branch: 'master', url: GIT_URL
         }
       } // steps
     } // stage
