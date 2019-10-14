@@ -17,8 +17,10 @@ TARGET_IMAGESTREAM_NAME="dev-${TARGET_IMAGESTREAM_NAME}"
 // DEPLOYMENT_TIMEOUT
 
 pipeline {
-  agent any
-
+    agent {
+        label 'maven'
+    }
+    
   stages {
 
     stage('Init') {
