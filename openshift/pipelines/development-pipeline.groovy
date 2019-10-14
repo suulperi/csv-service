@@ -108,7 +108,7 @@ pipeline {
                 openshift.create('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
             }
             // patch image
-            dcmap = dc.object()
+            dcmap = devDc.object()
             dcmap.spec.template.spec.containers[0].image = "openshift.docker-registry.default.svc:5000/${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}"
             openshift.apply(dcmap)
 
