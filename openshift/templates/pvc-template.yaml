@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: binary-s2i-template
+metadata:
+  annotations:
+    description: Template for creating a build configuration for binary S2I builds.
+  creationTimestamp: null
+  name: binary-s2i-template
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: ${NAME}
+    labels:
+      app: ${APP_NAME}
+      pipeline: ${REVISION}
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SIZE}
+parameters:
+- name: NAME
+  description: Name of PersistentVolumeClaim
+  required: true
+- name: APP_NAME
+  description: Application name
+  required: true
+- name: REVISION
+  description: Pipeline stage, default is release
+  value: release
+  required: true
+- name: SIZE
+  description: Size of PersistentVolumeClaim, default is 1Gi
+  value: 1Gi
+  required: true
+message: Created persistent volume claim ${NAME} with size ${SIZE} for ${APP_NAME}.
