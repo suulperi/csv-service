@@ -1,4 +1,4 @@
 env = {
   WEBSERV: '$WEBSERV',
-  STATIC: 'kborup'
+  STATIC: 'jmetso'
 }
