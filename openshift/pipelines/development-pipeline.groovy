@@ -81,7 +81,7 @@ pipeline {
             bc.startBuild("--from-dir=src/target")
             def builds = bc.related('builds')
             // wait at most BUILD_TIMEOUT minutes for the build to complete
-            timeout(BUILD_TIMEOUT) {
+            timeout(BUILD_TIMEOUT.toInteger()) {
               builds.untilEach(1) {
                 return it.object().status.phase == 'Complete'
               }
@@ -111,6 +111,12 @@ pipeline {
             dcmap = dc.object()
             dcmap.spec.template.spec.containers[0].image = "openshift.docker-registry.default.svc:5000/${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}"
             openshift.apply(dcmap)
+
+            timeout(DEPLOYMENT_TIMEOUT.toInteger()) {
+                def rm = devDc.rollout()
+                rm.latest()
+                rm.status()
+            } // timeout
 
             createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
           } // withProject
