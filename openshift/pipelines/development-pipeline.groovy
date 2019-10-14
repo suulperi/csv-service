@@ -32,8 +32,8 @@ pipeline {
     stage('Clone') {
       steps {
         dir('src') {
-          echo "${GIT_BRANCH} - ${GIT_URL}"
-          git branch: "${GIT_BRANCH}", url: "${GIT_URL}"
+          echo "${CLONE_BRANCH} - ${GIT_URL}"
+          git branch: "${CLONE_BRANCH}", url: "${GIT_URL}"
         }
       } // steps
     } // stage
