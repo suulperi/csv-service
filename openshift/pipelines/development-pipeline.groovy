@@ -20,7 +20,7 @@ pipeline {
     agent {
         label 'maven'
     }
-    
+
   stages {
 
     stage('Init') {
@@ -32,7 +32,7 @@ pipeline {
     stage('Clone') {
       steps {
         dir('src') {
-          git branch: 'master', url: GIT_URL
+          git branch: GIT_BRANCH, url: GIT_URL
         }
       } // steps
     } // stage
@@ -51,7 +51,7 @@ pipeline {
     stage('BUILD - Maven build') {
         steps {
             dir('src') {
-                sh 'mvn clean deploy'
+                sh 'mvn clean package'
             }
         } // steps
     } // stage
