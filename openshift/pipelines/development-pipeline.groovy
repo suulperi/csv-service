@@ -29,7 +29,7 @@ pipeline {
     stage('Clone') {
       steps {
         dir('src') {
-          git branch: 'development', url: "${GIT_URL}", credentialsId: "${GIT_CREDENTIALS_ID}"
+          git branch: 'development', url: "${GIT_URL}"
         }
       } // steps
     } // stage
