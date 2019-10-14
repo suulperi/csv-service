@@ -212,7 +212,7 @@ def createPvc(namespace, name, appName, size) {
  * @param contextRoot http context root for the application
  * @param appDomain openshift applications domain
  */
-def call(namespace, applicationName, contextRoot, appDomain) {
+def createSecureRoute(namespace, applicationName, contextRoot, appDomain) {
     openshift.withProject(namespace) {
         def route = openshift.selector('route', "${applicationName}-secure");
         if(!route.exists()) {
