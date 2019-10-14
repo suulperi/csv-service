@@ -42,7 +42,7 @@ pipeline {
       steps {
         script {
           def pom = readMavenPom file: 'pom.xml'
-          APP_VERSION = (pom.version)
+          APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
 
           TARGET_IMAGE_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
         }
