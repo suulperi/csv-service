@@ -69,9 +69,9 @@ pipeline {
               def build_obj = openshift.process(readFile(file:'src/openshift/templates/binary-s2i-template.yaml'),
                                     '-p', "APP_NAME=${APP_NAME}",
                                     '-p', "NAME=${BUILD_CONFIG_NAME}",
-                                    '-p', "BASE_IMAGESTREAM_NAMESPACE=${SRC_IMAGESTREAM_NAMESPACE}",
-                                    '-p', "BASE_IMAGESTREAM=${SRC_IMAGESTREAM}",
-                                    '-p', "BASE_IMAGE_TAG=${SRC_IMAGE_TAG}",
+                                    '-p', "BASE_IMAGESTREAM_NAMESPACE=${BASE_IMAGESTREAM_NAMESPACE}",
+                                    '-p', "BASE_IMAGESTREAM=${BASE_IMAGESTREAM}",
+                                    '-p', "BASE_IMAGE_TAG=${BASE_IMAGE_TAG}",
                                     '-p', "TARGET_IMAGESTREAM=${TARGET_IMAGESTREAM_NAME}",
                                     '-p', "REVISION=development")
 
