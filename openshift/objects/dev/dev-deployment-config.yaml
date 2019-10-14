@@ -36,6 +36,8 @@ spec:
         - env:
             - name: DATA_FOLDER
               value: /data
+            - name: OPENSHIFT_ENV_VAR
+              value: DEV
           image: >-
             docker-registry.default.svc:5000/csv-dev/dev-csv-s2i-build:latest
           imagePullPolicy: Always
@@ -45,7 +47,7 @@ spec:
               path: /health
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 30
+            initialDelaySeconds: 40
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
@@ -63,7 +65,7 @@ spec:
               path: /csv/api/v1
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 10
+            initialDelaySeconds: 20
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
