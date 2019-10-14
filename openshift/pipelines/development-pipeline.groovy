@@ -32,7 +32,7 @@ pipeline {
     stage('Clone') {
       steps {
         dir('src') {
-          git branch: GIT_BRANCH, url: GIT_URL
+          git branch: "${GIT_BRANCH}", url: GIT_URL
         }
       } // steps
     } // stage
