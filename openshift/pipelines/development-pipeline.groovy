@@ -102,10 +102,10 @@ pipeline {
             def devDc = openshift.selector('dc', APP_NAME)
             if(devDc.exists()) {
                 // apply from file
-                openshift.create('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
+                openshift.replace('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
             } else {
                 // create from file
-                openshift.replace('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
+                openshift.create('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
             }
             // patch image
             dcmap = dc.object()
