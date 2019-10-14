@@ -120,7 +120,7 @@ pipeline {
 
             def devSvc = openshift.selector('svc', APP_NAME)
             if(devSvc.exists()) {
-              openshift.replace('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+              openshift.apply('-f', 'src/openshift/objects/dev/dev-svc.yaml')
             } else {
               openshift.create('-f', 'src/openshift/objects/dev/dev-svc.yaml')
             }
