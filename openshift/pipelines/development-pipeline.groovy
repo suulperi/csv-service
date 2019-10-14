@@ -119,7 +119,7 @@ pipeline {
             } // timeout
 
             def devSvc = openshift.selector('svc', APP_NAME)
-            if(devSvc.exist()) {
+            if(devSvc.exists()) {
               openshift.replace('-f', 'src/openshift/objects/dev/dev-svc.yaml')
             } else {
               openshift.create('-f', 'src/openshift/objects/dev/dev-svc.yaml')
