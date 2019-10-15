@@ -31,10 +31,12 @@ pipeline {
           echo "${CLONE_BRANCH} - ${GIT_URL}"
           git branch: "${CLONE_BRANCH}", url: "${GIT_URL}"
         }
-        def pom = readMavenPom file: 'pom.xml'
-        APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
+        script {
+          def pom = readMavenPom file: 'pom.xml'
+          APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
 
-        TARGET_IMAGE_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
+          TARGET_IMAGE_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
+        } // script
       } // steps
     } // stage
 
