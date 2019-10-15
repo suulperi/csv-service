@@ -74,7 +74,7 @@ spec:
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /data
-              name: dev-csv-data
+              name: data-volume
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
