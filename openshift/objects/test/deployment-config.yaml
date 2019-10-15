@@ -37,7 +37,7 @@ spec:
             - name: DATA_FOLDER
               value: /data
             - name: OPENSHIFT_ENV_VAR
-              value: DEV
+              value: TEST
           image: >-
             docker-registry.default.svc:5000/csv-dev/csv-s2i-build:latest
           imagePullPolicy: Always
