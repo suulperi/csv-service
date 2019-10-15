@@ -9,7 +9,7 @@ metadata:
   creationTimestamp: null
   name: route-template
 objects:
-- apiVersion: route.openshift.io/v1
+- apiVersion: v1
   kind: Route
   metadata:
     annotations:
