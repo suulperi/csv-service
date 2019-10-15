@@ -9,7 +9,7 @@ metadata:
   creationTimestamp: null
   name: route-template
 objects:
-- apiVersion: v1
+- apiVersion: route.openshift.io/v1
   kind: Route
   metadata:
     annotations:
@@ -21,6 +21,7 @@ objects:
     name: ${APP_NAME}-secure
   spec:
     host: ${APP_NAME}-${APP_NAMESPACE}.${APP_DOMAIN}
+    path: ${APP_CONTEXT_ROOT}
     port:
       targetPort: 8080-tcp
     tls:
