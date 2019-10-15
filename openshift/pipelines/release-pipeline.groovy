@@ -54,7 +54,7 @@ pipeline {
         script {
           openshift.withProject(BUILD_NAMESPACE) {
 
-            createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, DEV_NAMESPACE)
+            createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, BUILD_NAMESPACE)
 
             def bc = openshift.selector("bc/${BUILD_CONFIG_NAME}")
             if(!bc.exists()) {
