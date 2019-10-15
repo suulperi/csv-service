@@ -21,6 +21,7 @@ objects:
     name: ${APP_NAME}-secure
   spec:
     host: ${APP_NAME}-${APP_NAMESPACE}.${APP_DOMAIN}
+    path: ${APP_CONTEXT_ROOT}
     port:
       targetPort: 8080-tcp
     tls:

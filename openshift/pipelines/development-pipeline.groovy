@@ -42,7 +42,7 @@ pipeline {
       steps {
         script {
           def pom = readMavenPom file: 'pom.xml'
-          APP_VERSION = (pom.version)
+          APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
 
           TARGET_IMAGE_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
         }
@@ -108,8 +108,8 @@ pipeline {
                 openshift.create('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
             }
             // patch image
-            dcmap = dc.object()
-            dcmap.spec.template.spec.containers[0].image = "openshift.docker-registry.default.svc:5000/${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}"
+            dcmap = devDc.object()
+            dcmap.spec.template.spec.containers[0].image = "docker-registry.default.svc:5000/${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}"
             openshift.apply(dcmap)
 
             timeout(DEPLOYMENT_TIMEOUT.toInteger()) {
@@ -117,6 +117,13 @@ pipeline {
                 rm.latest()
                 rm.status()
             } // timeout
+
+            def devSvc = openshift.selector('svc', APP_NAME)
+            if(devSvc.exists()) {
+              openshift.apply('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+            } else {
+              openshift.create('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+            }
 
             createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
           } // withProject
@@ -128,7 +135,7 @@ pipeline {
       steps {
         script {
           sleep 120
-          testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv", 'jmetso', 60, 60)
+          testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv/api/v1", 'world', 10, 30)
         } //
       } // steps
     } // stage
@@ -212,7 +219,7 @@ def createPvc(namespace, name, appName, size) {
  * @param contextRoot http context root for the application
  * @param appDomain openshift applications domain
  */
-def call(namespace, applicationName, contextRoot, appDomain) {
+def createSecureRoute(namespace, applicationName, contextRoot, appDomain) {
     openshift.withProject(namespace) {
         def route = openshift.selector('route', "${applicationName}-secure");
         if(!route.exists()) {

@@ -16,11 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.*;
 
-import javax.xml.ws.Response;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Janne Metso on 2017-07-13.
@@ -32,6 +30,7 @@ public class APIController {
     public String OCPenv;
 
     public static final String DATA_FOLDER_KEY = "DATA_FOLDER";
+    public static final String DEFAULT_DATA_FOLDER = "/";
     private Logger logger = LoggerFactory.getLogger(APIController.class);
     private String dataFolder = null;
     private TunableHealthIndicator tunableHealthIndicator;
@@ -42,7 +41,7 @@ public class APIController {
             this.logger.info("Data folder is "+this.dataFolder);
         } else {
             this.logger.warn("Env variable "+DATA_FOLDER_KEY+" not set! Setting data folder as /.");
-            this.dataFolder = "/";
+            this.dataFolder = DEFAULT_DATA_FOLDER;
         }
     }
 
