@@ -195,7 +195,7 @@ pipeline {
  * @param env environment folder to use
  */
 def createService(namespace, appName, env) {
-    openshift.withNamespace(namespace) {
+    openshift.withProject(namespace) {
         def devSvc = openshift.selector('svc', appName)
         if(devSvc.exists()) {
             openshift.apply('-f', "src/openshift/objects/${env}/svc.yaml")
@@ -214,7 +214,7 @@ def createService(namespace, appName, env) {
  * @param image image to deploy
  */
 def deployApplication(namespace, appName, env, image) {
-    openshift.withNamespace(namespace) {
+    openshift.withProject(namespace) {
         def dc = openshift.selector('dc', appName)
         if(dc.exists()) {
             // apply from file
