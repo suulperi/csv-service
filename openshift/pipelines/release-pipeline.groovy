@@ -89,7 +89,7 @@ pipeline {
         steps {
             script {
                 openshift.withProject(DEV_NAMESPACE) {
-                    openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
+                    openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
                 }
             } // script
         } // steps
