@@ -5,6 +5,7 @@
 // GIT_BRANCH
 // GIT_CREDENTIALS_ID
 BUILD_CONFIG_NAME="${APP_NAME}-s2i-build"
+// BUILD_NAMESPACE
 // DEV_NAMESPACE
 // TEST_NAMESPACE
 // PROD_NAMESPACE
@@ -51,7 +52,7 @@ pipeline {
     stage('BUILD - Bake application image') {
       steps {
         script {
-          openshift.withProject(DEV_NAMESPACE) {
+          openshift.withProject(BUILD_NAMESPACE) {
 
             createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, DEV_NAMESPACE)
 
@@ -78,16 +79,29 @@ pipeline {
               }
             } // timeout
 
-            openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
           } // withProject
         } // script 
       } // steps
     } // stage
 
+    stage('BUILD - Promote to DEV') {
+        steps {
+            script {
+                openshift.withProject(DEV_NAMESPACE) {
+                    openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
+                }
+            } // script
+        } // steps
+    } // stage
+
+
     stage('DEV - Deploy') {
       steps {
         script {
           openshift.withProject(DEV_NAMESPACE) {
+            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+
             createPvc(DEV_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
 
             deployApplication(DEV_NAMESPACE, APP_NAME, 'dev', "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
@@ -151,6 +165,8 @@ pipeline {
             script {
                 openshift.withProject(TEST_NAMESPACE) {
                     openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd")
+
+                    
                 }
             } // script
         } // steps
