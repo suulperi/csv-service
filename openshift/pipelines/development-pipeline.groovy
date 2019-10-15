@@ -135,7 +135,7 @@ pipeline {
       steps {
         script {
           sleep 120
-          testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv/v1/api", 'DEV', 60, 60)
+          testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv/api/v1", 'world', 10, 30)
         } //
       } // steps
     } // stage
