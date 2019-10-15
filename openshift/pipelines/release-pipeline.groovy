@@ -196,8 +196,8 @@ pipeline {
  */
 def createService(namespace, appName, env) {
     openshift.withProject(namespace) {
-        def devSvc = openshift.selector('svc', appName)
-        if(devSvc.exists()) {
+        def svc = openshift.selector('svc', appName)
+        if(svc.exists()) {
             openshift.apply('-f', "src/openshift/objects/${env}/svc.yaml")
         } else {
             openshift.create('-f', "src/openshift/objects/${env}/svc.yaml")
@@ -224,12 +224,12 @@ def deployApplication(namespace, appName, env, image) {
             openshift.create('-f', "src/openshift/objects/${env}/deployment-config.yaml")
         }
         // patch image
-        dcmap = devDc.object()
+        dcmap = dc.object()
         dcmap.spec.template.spec.containers[0].image = "docker-registry.default.svc:5000/${image}"
         openshift.apply(dcmap)
 
         timeout(DEPLOYMENT_TIMEOUT.toInteger()) {
-            def rm = devDc.rollout()
+            def rm = dc.rollout()
             rm.latest()
             rm.status()
         } // timeout
