@@ -1,0 +1,58 @@
+---
+- name: Setup CSV-Service CI/CD environment
+  hosts: openshift
+  gather_facts: no
+  vars:
+  - app_name: csv-service
+  - build_timeout: '10'
+  - deployment_timeout: '10'
+  - development_pipeline_file: development-pipeline.groovy
+  - context_dir: openshift/pipelines
+  - development_git_branch: master
+  - target_imagestream_name: csv-service
+  - release_pipeline_file: release-pipeline.groovy
+  roles:
+  - openshift-login
+
+  tasks:
+  - name: Build namespace exists
+    include_role: 
+      name: create-namespace
+    vars:
+      namespace_name: "{{ build_namespace }}"
+  - name: Deploy Jenkins to build namespace
+    include_role:
+      name: deploy-jenkins
+    vars:
+      jenkins_namespace: "{{ build_namespace }}"
+  - name: Setup development namespace
+    include_role:
+      name: setup-namespace
+    vars:
+      namespace: "{{ dev_namespace }}"
+      jenkins_namespace: "{{ build_namespace }}"
+  - name: Setup test namespace
+    include_role:
+      name: setup-namespace
+    vars:
+      namespace: "{{ test_namespace }}"
+      jenkins_namespace: "{{ build_namespace }}"
+  - name: Setup production namespace
+    include_role:
+      name: setup-namespace
+    vars:
+      namespace: "{{ prod_namespace }}"
+      jenkins_namespace: "{{ build_namespace }}"
+
+  - name: Get existing pipelines
+    shell: "oc get bc -n {{ build_namespace }}"
+    ignore_errors: true
+    register: build_projects
+
+  - name: Setup development pipeline
+    shell: "oc process --local -f {{ playbook_dir }}/files/development-pipeline-bc-template.yaml -p APP_NAME={{ app_name }} -p GIT_URL={{ git_url }} -p GIT_BRANCH={{ development_git_branch }} -p CONTEXT_DIR={{ context_dir }} -p JENKINS_FILENAME={{ development_pipeline_file }} -p BASE_IMAGESTREAM_NAMESPACE={{ base_imagestream_namespace }} -p BASE_IMAGESTREAM_NAME={{ base_imagestream }} -p BASE_IMAGE_TAG={{ base_image_tag }} -p BUILD_TIMEOUT={{ build_timeout }} -p DEPLOYMENT_TIMEOUT={{ deployment_timeout }} -p BUILD_NAMESPACE={{ build_namespace }} -p DEV_NAMESPACE={{ dev_namespace }} -p APP_DOMAIN={{ app_domain }} -p TARGET_IMAGESTREAM_NAME={{ target_imagestream_name }} | oc create -f - -n {{ build_namespace }}"
+    when: '"{{ app_name }}-development-pipeline" not in build_projects.stdout'
+
+  - name: Setup release pipeline
+    shell: "oc process --local -f {{ playbook_dir }}/files/release-pipeline-bc-template.yaml -p APP_NAME={{ app_name }} -p GIT_URL={{ git_url }} -p GIT_BRANCH={{ development_git_branch }} -p CONTEXT_DIR={{ context_dir }} -p JENKINS_FILENAME={{ release_pipeline_file }} -p BASE_IMAGESTREAM_NAMESPACE={{ base_imagestream_namespace }} -p BASE_IMAGESTREAM_NAME={{ base_imagestream }} -p BASE_IMAGE_TAG={{ base_image_tag }} -p BUILD_TIMEOUT={{ build_timeout }} -p DEPLOYMENT_TIMEOUT={{ deployment_timeout }} -p BUILD_NAMESPACE={{ build_namespace }} -p DEV_NAMESPACE={{ dev_namespace }} -p TEST_NAMESPACE={{ test_namespace }} -p PROD_NAMESPACE={{ prod_namespace }} -p APP_DOMAIN={{ app_domain }} -p TARGET_IMAGESTREAM_NAME={{ target_imagestream_name }} | oc create -f - -n {{ build_namespace }}"
+    when: '"{{ app_name }}-release-pipeline" not in build_projects.stdout'
