@@ -2,7 +2,7 @@
 
 // used environment variables
 // GIT_URL
-// GIT_BRANCH
+// CLONE_BRANCH
 // GIT_CREDENTIALS_ID
 BUILD_CONFIG_NAME="${APP_NAME}-s2i-build"
 // BUILD_NAMESPACE
