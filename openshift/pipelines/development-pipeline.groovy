@@ -17,9 +17,9 @@ TARGET_IMAGESTREAM_NAME="dev-${TARGET_IMAGESTREAM_NAME}"
 // DEPLOYMENT_TIMEOUT
 
 pipeline {
-    agent {
-        label 'maven'
-    }
+  agent {
+      label 'maven'
+  }
 
   stages {
 
@@ -50,11 +50,11 @@ pipeline {
     } // stage
 
     stage('BUILD - Maven build') {
-        steps {
-            dir('src') {
-                sh 'mvn clean package'
-            }
-        } // steps
+      steps {
+        dir('src') {
+          sh 'mvn clean package'
+        }
+      } // steps
     } // stage
 
     stage('BUILD - Bake application image') {
@@ -89,14 +89,26 @@ pipeline {
 
             openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
           } // withProject
-        } // script 
+        } // script
       } // steps
+    } // stage
+
+    stage('BUILD - Promote to DEV') {
+        steps {
+            script {
+                openshift.withProject(DEV_NAMESPACE) {
+                    openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
+                }
+            } // script
+        } // steps
     } // stage
 
     stage('DEV - Deploy') {
       steps {
         script {
           openshift.withProject(DEV_NAMESPACE) {
+            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+
             createPvc(DEV_NAMESPACE, 'dev-csv-data', APP_NAME, '1Gi')
 
             def devDc = openshift.selector('dc', APP_NAME)
@@ -157,9 +169,9 @@ def createImageStream(name, appName, namespace) {
     openshift.withProject(namespace) {
         def is = openshift.selector('is', name);
         if(!is.exists()) {
-            def isObj = openshift.process(readFile(file:'src/openshift/templates/imagestream-template.yaml'), 
-                    '-p', "APP_NAME=${appName}", 
-                    '-p', "IMAGESTREAM_NAME=${name}", 
+            def isObj = openshift.process(readFile(file:'src/openshift/templates/imagestream-template.yaml'),
+                    '-p', "APP_NAME=${appName}",
+                    '-p', "IMAGESTREAM_NAME=${name}",
                     '-p', "REVISION=development")
             openshift.create(isObj)
         }
@@ -191,7 +203,7 @@ def testEndpointResponse(url, text, wait=10, pollInterval=30) {
 
 /**
  * Creates a persistent volume claim (pvc)
- * 
+ *
  * @param namespace namespace to create the pvc in
  * @param name name of pvc
  * @param appName name of application
@@ -223,10 +235,10 @@ def createSecureRoute(namespace, applicationName, contextRoot, appDomain) {
     openshift.withProject(namespace) {
         def route = openshift.selector('route', "${applicationName}-secure");
         if(!route.exists()) {
-            def routeObj = openshift.process(readFile(file:'src/openshift/templates/secure-route-template.yaml'), 
+            def routeObj = openshift.process(readFile(file:'src/openshift/templates/secure-route-template.yaml'),
                     '-p', "APP_NAME=${applicationName}",
-                    '-p', "APP_NAMESPACE=${namespace}", 
-                    '-p', "APP_CONTEXT_ROOT=${contextRoot}", 
+                    '-p', "APP_NAMESPACE=${namespace}",
+                    '-p', "APP_CONTEXT_ROOT=${contextRoot}",
                     '-p', "APP_DOMAIN=${appDomain}")
             openshift.create(routeObj)
         }
