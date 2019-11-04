@@ -154,10 +154,10 @@ public class APIController {
             public void run() {
                 try {
                     Thread.sleep(5000);
-                    System.exit(-1);
                 } catch(InterruptedException e) {
                     logger.warn("Unable to sleep!");
                 }
+                System.exit(-1);
             }
         }).start();
         return new ResponseEntity<String>("Crashing app in 5 seconds!", HttpStatus.OK);
