@@ -20,7 +20,7 @@ public class DataFolderHealthIndicator extends AbstractHealthIndicator {
         if(System.getenv(APIController.DATA_FOLDER_KEY) != null) {
             dataFolder = System.getenv(APIController.DATA_FOLDER_KEY);
         } else {
-            dataFolder = "/";
+            dataFolder = APIController.DEFAULT_DATA_FOLDER;
         }
         if(new File(dataFolder).exists()) {
             builder.up();
