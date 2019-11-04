@@ -5,7 +5,7 @@
 // CLONE_BRANCH
 // GIT_CREDENTIALS_ID
 APP_NAME="dev-${APP_NAME}"
-BUILD_CONFIG_NAME="${APP_NAME}-s2i-build"
+BUILD_CONFIG_NAME="dev-${APP_NAME}-s2i-build"
 // DEV_NAMESPACE
 // BASE_IMAGESTREAM_NAMESPACE
 // BASE_IMAGESTREAM_NAME
@@ -146,7 +146,7 @@ pipeline {
     stage('DEV - Run tests') {
       steps {
         script {
-          sleep 120
+          sleep 10
           testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv/api/v1", 'world', 10, 30)
         } //
       } // steps
