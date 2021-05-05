@@ -255,7 +255,7 @@ def deployApplication(namespace, appName, env, image) {
         }
         // patch image
         dcmap = dc.object()
-        dcmap.spec.template.spec.containers[0].image = "docker-registry.default.svc:5000/${image}"
+        dcmap.spec.template.spec.containers[0].image = "image-registry.openshift-image-registry.svc:5000/${image}"
         openshift.apply(dcmap)
 
         timeout(DEPLOYMENT_TIMEOUT.toInteger()) {
