@@ -20,7 +20,7 @@ objects:
       pipeline: release
     name: ${APP_NAME}-release-pipeline
   spec:
-    failedBuildsHistoryLimit: ${FAILED_BUILDS_LIMIT}
+    failedBuildsHistoryLimit: ${{FAILED_BUILDS_LIMIT}}
     nodeSelector: null
     output: {}
     postCommit: {}
@@ -65,7 +65,7 @@ objects:
         - name: DEPLOYMENT_TIMEOUT
           value: ${DEPLOYMENT_TIMEOUT}
       type: JenkinsPipeline
-    successfulBuildsHistoryLimit: ${SUCCESS_BUILDS_LIMIT}
+    successfulBuildsHistoryLimit: ${{SUCCESS_BUILDS_LIMIT}}
     triggers:
     - generic:
         secret: ${GENERIC_TRIGGER_SECRET_VALUE}

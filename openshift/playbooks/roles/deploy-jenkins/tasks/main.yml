@@ -7,12 +7,12 @@
   register: jenkins_check_result
 
 - name: Create PVC for Jenkins Maven worker
-  command: oc create -f {{ role_dir }}/files/mvn-pvc.json -n {{ jenkins_namespace }}
+  command: oc create -f {{ role_path }}/files/mvn-pvc.json -n {{ jenkins_namespace }}
   ignore_errors: true
   when: '"jenkins" not in jenkins_check_result.stdout'
 
 - name: Create Maven pod template for Jenkins
-  command: oc create -f {{ role_dir }}/files/configmap-mvn-pod-template.yaml -n {{ jenkins_namespace }}
+  command: oc create -f {{ role_path }}/files/configmap-mvn-pod-template.yaml -n {{ jenkins_namespace }}
   when: '"jenkins" not in jenkins_check_result.stdout'
 
 - name: Deploy Jenkins

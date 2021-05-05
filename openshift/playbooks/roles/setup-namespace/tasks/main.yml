@@ -3,7 +3,7 @@
   include_role: 
     name: create-namespace
   vars:
-    namespace: "{{ namespace }}"
+    namespace_name: "{{ namespace }}"
 
 - name: Give Jenkins edit access to namespace
   include_role:
