@@ -161,7 +161,7 @@ pipeline {
       steps {
         script {
           sleep 10
-          testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv/api/v1", 'world', 10, 30)
+          testEndpointResponse("https://${APP_NAME}-${DEV_NAMESPACE}.${APP_DOMAIN}/csv/api/v1", 'DEV', 10, 30)
         } //
       } // steps
     } // stage
