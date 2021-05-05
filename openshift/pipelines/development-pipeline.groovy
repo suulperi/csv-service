@@ -15,6 +15,8 @@ TARGET_IMAGESTREAM_NAME="dev-${TARGET_IMAGESTREAM_NAME}"
 // APP_DOMAIN
 // BUILD_TIMEOUT
 // DEPLOYMENT_TIMEOUT
+APP_VERSION=""
+APP_MINOR=""
 
 pipeline {
   agent {
@@ -43,7 +45,11 @@ pipeline {
         script {
           def pom = readMavenPom file: 'pom.xml'
           APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
+          def secondIndexOfDot = APP_VERSION.indexOf('.', 2)-1
+          APP_MINOR = APP_VERSION[0..secondIndexOfDot]
 
+          BUILD_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
+          TARGET_IMAGE_TAG="${APP_VERSION}"
           TARGET_IMAGE_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
         }
       } // steps
@@ -88,7 +94,9 @@ pipeline {
                 }
               } // timeout
 
-              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${BUILD_TAG}")
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${APP_VERSION}")
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${APP_MINOR}")
             } // withProject
           }
         }
