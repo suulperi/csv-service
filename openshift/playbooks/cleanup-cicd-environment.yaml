@@ -1,0 +1,29 @@
+---
+- name: Setup CSV-Service CI/CD environment
+  hosts: openshift
+  gather_facts: no
+  roles:
+  - openshift-login
+
+  tasks:
+  - name: Delete build namespace
+    include_role: 
+      name: delete-namespace
+    vars:
+      namespace_name: "{{ build_namespace }}"
+  - name: Setup development namespace
+    include_role:
+      name: delete-namespace
+    vars:
+      namespace: "{{ dev_namespace }}"
+  - name: Setup test namespace
+    include_role:
+      name: delete-namespace
+    vars:
+      namespace: "{{ test_namespace }}"
+  - name: Setup production namespace
+    include_role:
+      name: delete-namespace
+    vars:
+      namespace: "{{ prod_namespace }}"
+
