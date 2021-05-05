@@ -60,37 +60,37 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-          openshift.withProject(BUILD_NAMESPACE) {
+            openshift.withProject(BUILD_NAMESPACE) {
 
-            createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, BUILD_NAMESPACE)
+              createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, BUILD_NAMESPACE)
 
-            def bc = openshift.selector("bc/${BUILD_CONFIG_NAME}")
-            if(!bc.exists()) {
-              def build_obj = openshift.process(readFile(file:'src/openshift/templates/binary-s2i-template.yaml'),
-                                    '-p', "APP_NAME=${APP_NAME}",
-                                    '-p', "NAME=${BUILD_CONFIG_NAME}",
-                                    '-p', "BASE_IMAGESTREAM_NAMESPACE=${BASE_IMAGESTREAM_NAMESPACE}",
-                                    '-p', "BASE_IMAGESTREAM=${BASE_IMAGESTREAM}",
-                                    '-p', "BASE_IMAGE_TAG=${BASE_IMAGE_TAG}",
-                                    '-p', "TARGET_IMAGESTREAM=${TARGET_IMAGESTREAM_NAME}",
-                                    '-p', "REVISION=release")
+              def bc = openshift.selector("bc/${BUILD_CONFIG_NAME}")
+              if(!bc.exists()) {
+                def build_obj = openshift.process(readFile(file:'src/openshift/templates/binary-s2i-template.yaml'),
+                                      '-p', "APP_NAME=${APP_NAME}",
+                                      '-p', "NAME=${BUILD_CONFIG_NAME}",
+                                      '-p', "BASE_IMAGESTREAM_NAMESPACE=${BASE_IMAGESTREAM_NAMESPACE}",
+                                      '-p', "BASE_IMAGESTREAM=${BASE_IMAGESTREAM}",
+                                      '-p', "BASE_IMAGE_TAG=${BASE_IMAGE_TAG}",
+                                      '-p', "TARGET_IMAGESTREAM=${TARGET_IMAGESTREAM_NAME}",
+                                      '-p', "REVISION=release")
 
-              openshift.create(build_obj)
-            } // if
+                openshift.create(build_obj)
+              } // if
 
-            bc.startBuild("--from-dir=src/target")
-            def builds = bc.related('builds')
-            // wait at most BUILD_TIMEOUT minutes for the build to complete
-            timeout(BUILD_TIMEOUT.toInteger()) {
-              builds.untilEach(1) {
-                return it.object().status.phase == 'Complete'
-              }
-            } // timeout
+              bc.startBuild("--from-dir=src/target")
+              def builds = bc.related('builds')
+              // wait at most BUILD_TIMEOUT minutes for the build to complete
+              timeout(BUILD_TIMEOUT.toInteger()) {
+                builds.untilEach(1) {
+                  return it.object().status.phase == 'Complete'
+                }
+              } // timeout
 
-            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${BUILD_TAG}")
-            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
-            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${APP_MINOR}")
-          } // withProject
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${BUILD_TAG}")
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${APP_MINOR}")
+            } // withProject
           }
         } // script 
       } // steps
@@ -100,9 +100,9 @@ pipeline {
         steps {
             script {
                 openshift.withCluster() {
-                openshift.withProject(DEV_NAMESPACE) {
-                    openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
-                }
+                  openshift.withProject(DEV_NAMESPACE) {
+                      openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
+                  }
                 }
             } // script
         } // steps
@@ -113,17 +113,17 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-          openshift.withProject(DEV_NAMESPACE) {
-            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+            openshift.withProject(DEV_NAMESPACE) {
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createPvc(DEV_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
+              createPvc(DEV_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
 
-            deployApplication(DEV_NAMESPACE, APP_NAME, 'dev', "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+              deployApplication(DEV_NAMESPACE, APP_NAME, 'dev', "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createService(DEV_NAMESPACE, APP_NAME, 'dev')
+              createService(DEV_NAMESPACE, APP_NAME, 'dev')
 
-            createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
-          } // withProject
+              createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
+            } // withProject
           }
         } // script
       } // steps
@@ -142,9 +142,9 @@ pipeline {
         steps {
             script {
                 openshift.withCluster() {
-                openshift.withProject(DEV_NAMESPACE) {
-                    openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toTest")
-                }
+                  openshift.withProject(DEV_NAMESPACE) {
+                      openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toTest")
+                  }
                 }
             } // script
         } // steps
@@ -154,17 +154,17 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-          openshift.withProject(TEST_NAMESPACE) {
-            openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toTest", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+            openshift.withProject(TEST_NAMESPACE) {
+              openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toTest", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createPvc(TEST_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
+              createPvc(TEST_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
 
-            deployApplication(TEST_NAMESPACE, APP_NAME, 'test', "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+              deployApplication(TEST_NAMESPACE, APP_NAME, 'test', "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createService(TEST_NAMESPACE, APP_NAME, 'test')
+              createService(TEST_NAMESPACE, APP_NAME, 'test')
 
-            createSecureRoute(TEST_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
-          } // withProject
+              createSecureRoute(TEST_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
+            } // withProject
           }
         } // script
       } // steps
@@ -180,34 +180,34 @@ pipeline {
     } // stage
 
     stage('TEST - Promote to PROD') {
-        steps {
-            script {
-                openshift.withCluster() {
-                openshift.withProject(TEST_NAMESPACE) {
-                    openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd")
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject(TEST_NAMESPACE) {
+                openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd")
 
-                    
-                }
-                }
-            } // script
-        } // steps
+                
+            }
+          }
+        } // script
+      } // steps
     } // stage
 
     stage('PROD - Deploy') {
       steps {
         script {
           openshift.withCluster() {
-          openshift.withProject(PROD_NAMESPACE) {
-            openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd", "${PROD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+            openshift.withProject(PROD_NAMESPACE) {
+              openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd", "${PROD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createPvc(PROD_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
+              createPvc(PROD_NAMESPACE, 'csv-data', APP_NAME, '1Gi')
 
-            deployApplication(PROD_NAMESPACE, APP_NAME, 'prod', "${PROD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+              deployApplication(PROD_NAMESPACE, APP_NAME, 'prod', "${PROD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createService(PROD_NAMESPACE, APP_NAME, 'prod')
+              createService(PROD_NAMESPACE, APP_NAME, 'prod')
 
-            createSecureRoute(PROD_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
-          } // withProject
+              createSecureRoute(PROD_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
+            } // withProject
           }
         } // script
       } // steps
