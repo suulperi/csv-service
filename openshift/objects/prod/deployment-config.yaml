@@ -44,7 +44,7 @@ spec:
           livenessProbe:
             failureThreshold: 5
             httpGet:
-              path: /health
+              path: /csv/health
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 120

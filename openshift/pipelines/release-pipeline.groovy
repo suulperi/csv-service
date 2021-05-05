@@ -18,6 +18,7 @@ TARGET_IMAGESTREAM_NAME="${TARGET_IMAGESTREAM_NAME}"
 // BUILD_TIMEOUT
 // DEPLOYMENT_TIMEOUT
 BUILD_TAG=""
+APP_VERSION=""
 
 pipeline {
     agent {
@@ -36,6 +37,9 @@ pipeline {
         script {
           def pom = readMavenPom file: 'pom.xml'
           APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
+          APP_MINOR (pom.version)[0..(pom.version).indexOf('.', 2)]
+
+          echo(${APP_MINOR})
 
           BUILD_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
           TARGET_IMAGE_TAG="${APP_VERSION}"
