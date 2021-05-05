@@ -41,8 +41,6 @@ pipeline {
           def secondIndexOfDot = APP_VERSION.indexOf('.', 2)-1
           APP_MINOR = APP_VERSION[0..secondIndexOfDot]
 
-          echo("${APP_MINOR}")
-
           BUILD_TAG="${APP_VERSION}-${env.BUILD_NUMBER}"
           TARGET_IMAGE_TAG="${APP_VERSION}"
         } // script
