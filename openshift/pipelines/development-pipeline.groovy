@@ -5,7 +5,7 @@
 // CLONE_BRANCH
 // GIT_CREDENTIALS_ID
 APP_NAME="dev-${APP_NAME}"
-BUILD_CONFIG_NAME="dev-${APP_NAME}-s2i-build"
+BUILD_CONFIG_NAME="${APP_NAME}-s2i-build"
 // DEV_NAMESPACE
 // BASE_IMAGESTREAM_NAMESPACE
 // BASE_IMAGESTREAM_NAME
@@ -61,9 +61,9 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.withProject(DEV_NAMESPACE) {
+            openshift.withProject(BUILD_NAMESPACE) {
 
-              createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, DEV_NAMESPACE)
+              createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, BUILD_NAMESPACE)
 
               def bc = openshift.selector("bc/${BUILD_CONFIG_NAME}")
               if(!bc.exists()) {
@@ -88,7 +88,7 @@ pipeline {
                 }
               } // timeout
 
-              openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
             } // withProject
           }
         }
@@ -99,7 +99,7 @@ pipeline {
         steps {
             script {
               openshift.withCluster() {
-                openshift.withProject(DEV_NAMESPACE) {
+                openshift.withProject(BUILD_NAMESPACE) {
                     openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
                 }
               }
