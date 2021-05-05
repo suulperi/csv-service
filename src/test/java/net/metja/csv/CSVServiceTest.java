@@ -30,7 +30,7 @@ public class CSVServiceTest {
 
     @Test
     public void getHello() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/csv/api/v1/hello/janne") .accept(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/hello/janne") .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(Matchers.equalTo("{\"hello\":\"janne!\"}")));
     }
