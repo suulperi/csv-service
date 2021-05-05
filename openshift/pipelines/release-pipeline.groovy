@@ -38,7 +38,8 @@ pipeline {
         script {
           def pom = readMavenPom file: 'pom.xml'
           APP_VERSION = (pom.version).replaceAll('-[A-Za-z]+', '')
-          APP_MINOR = (pom.version)[0..(pom.version).indexOf('.', 2)]
+          def secondIndexOfDot = APP_VERSION.indexOf('.', 2)
+          APP_MINOR = APP_VERSION[0..secondIndexOfDot]
 
           echo(${APP_MINOR})
 
