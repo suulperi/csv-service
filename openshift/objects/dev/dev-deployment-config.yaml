@@ -42,12 +42,12 @@ spec:
             docker-registry.default.svc:5000/csv-dev/dev-csv-s2i-build:latest
           imagePullPolicy: Always
           livenessProbe:
-            failureThreshold: 3
+            failureThreshold: 5
             httpGet:
               path: /health
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 40
+            initialDelaySeconds: 120
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
@@ -60,7 +60,7 @@ spec:
             - containerPort: 8443
               protocol: TCP
           readinessProbe:
-            failureThreshold: 3
+            failureThreshold: 5
             httpGet:
               path: /csv/api/v1/hello/readinessProbe
               port: 8080
