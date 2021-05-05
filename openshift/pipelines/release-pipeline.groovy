@@ -52,6 +52,7 @@ pipeline {
     stage('BUILD - Bake application image') {
       steps {
         script {
+          openshift.withCluster() {
           openshift.withProject(BUILD_NAMESPACE) {
 
             createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, BUILD_NAMESPACE)
@@ -81,6 +82,7 @@ pipeline {
 
             openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
           } // withProject
+          }
         } // script 
       } // steps
     } // stage
@@ -88,8 +90,10 @@ pipeline {
     stage('BUILD - Promote to DEV') {
         steps {
             script {
+                openshift.withCluster() {
                 openshift.withProject(DEV_NAMESPACE) {
                     openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
+                }
                 }
             } // script
         } // steps
@@ -99,6 +103,7 @@ pipeline {
     stage('DEV - Deploy') {
       steps {
         script {
+          openshift.withCluster() {
           openshift.withProject(DEV_NAMESPACE) {
             openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
@@ -110,6 +115,7 @@ pipeline {
 
             createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
           } // withProject
+          }
         } // script
       } // steps
     } // stage
@@ -126,8 +132,10 @@ pipeline {
     stage('DEV - Promote to TEST') {
         steps {
             script {
+                openshift.withCluster() {
                 openshift.withProject(DEV_NAMESPACE) {
                     openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toTest")
+                }
                 }
             } // script
         } // steps
@@ -136,6 +144,7 @@ pipeline {
     stage('TEST - Deploy') {
       steps {
         script {
+          openshift.withCluster() {
           openshift.withProject(TEST_NAMESPACE) {
             openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toTest", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
@@ -147,6 +156,7 @@ pipeline {
 
             createSecureRoute(TEST_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
           } // withProject
+          }
         } // script
       } // steps
     } // stage
@@ -163,10 +173,12 @@ pipeline {
     stage('TEST - Promote to PROD') {
         steps {
             script {
+                openshift.withCluster() {
                 openshift.withProject(TEST_NAMESPACE) {
                     openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd")
 
                     
+                }
                 }
             } // script
         } // steps
@@ -175,6 +187,7 @@ pipeline {
     stage('PROD - Deploy') {
       steps {
         script {
+          openshift.withCluster() {
           openshift.withProject(PROD_NAMESPACE) {
             openshift.tag("${TEST_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toProd", "${PROD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
@@ -186,6 +199,7 @@ pipeline {
 
             createSecureRoute(PROD_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
           } // withProject
+          }
         } // script
       } // steps
     } // stage
