@@ -60,45 +60,49 @@ pipeline {
     stage('BUILD - Bake application image') {
       steps {
         script {
-          openshift.withProject(DEV_NAMESPACE) {
+          openshift.withCluster() {
+            openshift.withProject(DEV_NAMESPACE) {
 
-            createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, DEV_NAMESPACE)
+              createImageStream(TARGET_IMAGESTREAM_NAME, APP_NAME, DEV_NAMESPACE)
 
-            def bc = openshift.selector("bc/${BUILD_CONFIG_NAME}")
-            if(!bc.exists()) {
-              def build_obj = openshift.process(readFile(file:'src/openshift/templates/binary-s2i-template.yaml'),
-                                    '-p', "APP_NAME=${APP_NAME}",
-                                    '-p', "NAME=${BUILD_CONFIG_NAME}",
-                                    '-p', "BASE_IMAGESTREAM_NAMESPACE=${BASE_IMAGESTREAM_NAMESPACE}",
-                                    '-p', "BASE_IMAGESTREAM=${BASE_IMAGESTREAM}",
-                                    '-p', "BASE_IMAGE_TAG=${BASE_IMAGE_TAG}",
-                                    '-p', "TARGET_IMAGESTREAM=${TARGET_IMAGESTREAM_NAME}",
-                                    '-p', "REVISION=development")
+              def bc = openshift.selector("bc/${BUILD_CONFIG_NAME}")
+              if(!bc.exists()) {
+                def build_obj = openshift.process(readFile(file:'src/openshift/templates/binary-s2i-template.yaml'),
+                                      '-p', "APP_NAME=${APP_NAME}",
+                                      '-p', "NAME=${BUILD_CONFIG_NAME}",
+                                      '-p', "BASE_IMAGESTREAM_NAMESPACE=${BASE_IMAGESTREAM_NAMESPACE}",
+                                      '-p', "BASE_IMAGESTREAM=${BASE_IMAGESTREAM}",
+                                      '-p', "BASE_IMAGE_TAG=${BASE_IMAGE_TAG}",
+                                      '-p', "TARGET_IMAGESTREAM=${TARGET_IMAGESTREAM_NAME}",
+                                      '-p', "REVISION=development")
 
-              openshift.create(build_obj)
-            } // if
+                openshift.create(build_obj)
+              } // if
 
-            bc.startBuild("--from-dir=src/target")
-            def builds = bc.related('builds')
-            // wait at most BUILD_TIMEOUT minutes for the build to complete
-            timeout(BUILD_TIMEOUT.toInteger()) {
-              builds.untilEach(1) {
-                return it.object().status.phase == 'Complete'
-              }
-            } // timeout
+              bc.startBuild("--from-dir=src/target")
+              def builds = bc.related('builds')
+              // wait at most BUILD_TIMEOUT minutes for the build to complete
+              timeout(BUILD_TIMEOUT.toInteger()) {
+                builds.untilEach(1) {
+                  return it.object().status.phase == 'Complete'
+                }
+              } // timeout
 
-            openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
-          } // withProject
-        } // script
+              openshift.tag("${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:latest", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+            } // withProject
+          }
+        }
       } // steps
     } // stage
 
     stage('BUILD - Promote to DEV') {
         steps {
             script {
+              openshift.withCluster() {
                 openshift.withProject(DEV_NAMESPACE) {
                     openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}", "${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev")
                 }
+              }
             } // script
         } // steps
     } // stage
@@ -106,39 +110,41 @@ pipeline {
     stage('DEV - Deploy') {
       steps {
         script {
-          openshift.withProject(DEV_NAMESPACE) {
-            openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
+          openshift.withCluster() {
+            openshift.withProject(DEV_NAMESPACE) {
+              openshift.tag("${BUILD_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:toDev", "${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}")
 
-            createPvc(DEV_NAMESPACE, 'dev-csv-data', APP_NAME, '1Gi')
+              createPvc(DEV_NAMESPACE, 'dev-csv-data', APP_NAME, '1Gi')
 
-            def devDc = openshift.selector('dc', APP_NAME)
-            if(devDc.exists()) {
-                // apply from file
-                openshift.replace('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
-            } else {
-                // create from file
-                openshift.create('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
-            }
-            // patch image
-            dcmap = devDc.object()
-            dcmap.spec.template.spec.containers[0].image = "image-registry.openshift-image-registry.svc:5000/${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}"
-            openshift.apply(dcmap)
+              def devDc = openshift.selector('dc', APP_NAME)
+              if(devDc.exists()) {
+                  // apply from file
+                  openshift.replace('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
+              } else {
+                  // create from file
+                  openshift.create('-f', 'src/openshift/objects/dev/dev-deployment-config.yaml')
+              }
+              // patch image
+              dcmap = devDc.object()
+              dcmap.spec.template.spec.containers[0].image = "image-registry.openshift-image-registry.svc:5000/${DEV_NAMESPACE}/${TARGET_IMAGESTREAM_NAME}:${TARGET_IMAGE_TAG}"
+              openshift.apply(dcmap)
 
-            timeout(DEPLOYMENT_TIMEOUT.toInteger()) {
-                def rm = devDc.rollout()
-                rm.latest()
-                rm.status()
-            } // timeout
+              timeout(DEPLOYMENT_TIMEOUT.toInteger()) {
+                  def rm = devDc.rollout()
+                  rm.latest()
+                  rm.status()
+              } // timeout
 
-            def devSvc = openshift.selector('svc', APP_NAME)
-            if(devSvc.exists()) {
-              openshift.apply('-f', 'src/openshift/objects/dev/dev-svc.yaml')
-            } else {
-              openshift.create('-f', 'src/openshift/objects/dev/dev-svc.yaml')
-            }
+              def devSvc = openshift.selector('svc', APP_NAME)
+              if(devSvc.exists()) {
+                openshift.apply('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+              } else {
+                openshift.create('-f', 'src/openshift/objects/dev/dev-svc.yaml')
+              }
 
-            createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
-          } // withProject
+              createSecureRoute(DEV_NAMESPACE, APP_NAME, '/csv', APP_DOMAIN)
+            } // withProject
+          }
         } // script
       } // steps
     } // stage
