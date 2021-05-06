@@ -8,7 +8,7 @@
   - deployment_timeout: '10'
   - development_pipeline_file: development-pipeline.groovy
   - context_dir: openshift/pipelines
-  - development_git_branch: master
+#  - development_git_branch: master
   - target_imagestream_name: csv-service
   - release_pipeline_file: release-pipeline.groovy
   roles:
