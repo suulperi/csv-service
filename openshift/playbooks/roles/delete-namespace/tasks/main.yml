@@ -7,5 +7,5 @@
 
 - name: Delete Namespace
   shell:
-    cmd: oc delete namespace {{ namespace_name }}
+    cmd: oc delete project {{ namespace_name }}
   when: 'namespace_name in namespace_check_result.stdout'
