@@ -19,6 +19,7 @@ objects:
       pipeline: ${REVISION}
     name: ${NAME}
   spec:
+    failedBuildsHistoryLimit: 5
     nodeSelector: null
     output:
       to:
@@ -37,6 +38,7 @@ objects:
           name: ${BASE_IMAGESTREAM}:${BASE_IMAGE_TAG}
           namespace: ${BASE_IMAGESTREAM_NAMESPACE}
       type: Source
+    successfulBuildsHistoryLimit: 5
     triggers:
     - generic:
         secret: ${GENERIC_TRIGGER_SECRET_VALUE}
