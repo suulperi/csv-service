@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: webtest
+  name: csv-service
+  annotations: {}
+spec:
+  selector:
+    matchLabels:
+      app: csv-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: csv-service
+    spec:
+      containers:
+      - env:
+          - name: DATA_FOLDER
+            value: /data
+          - name: OPENSHIFT_ENV_VAR
+            value: Tommi's Test Environment
+        name: container
+        image: >-
+            image-registry.openshift-image-registry.svc:5000/webtest/webtest:latest
+        ports:
+          - containerPort: 8778
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+        volumeMounts:
+            - mountPath: /data
+              name: data-volume
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: csv-data
+  strategy:
+    type: Recreate
+  paused: false

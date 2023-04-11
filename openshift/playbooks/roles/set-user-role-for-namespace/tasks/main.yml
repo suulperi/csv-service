@@ -1,4 +1,0 @@
----
-- name: Give user role to namespace
-  command: oc policy add-role-to-user {{ role }} {{ user }} -n {{ target_namespace }}
-  ignore_errors: true
