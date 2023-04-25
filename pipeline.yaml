@@ -1,8 +1,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: webtest-ci
-  namespace: webtest
+  name: csv-service-ci
+  namespace: csv-service-ci
 spec:
   tasks:
     - name: git-clone
@@ -37,15 +37,15 @@ spec:
           value: 'true'
         - name: gitInitImage
           value: >-
-            registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:6c3980b3d28c8fb92b17466f5654d5f484ab893f1673ec8f29e49c0d03f8aca9
+            registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:e29585c67da42f3800f250c9c60159453af6ee7b4fff5669e27e17f34136a1d3
         - name: userHome
-          value: /tekton/home
+          value: /home/git
       taskRef:
         kind: ClusterTask
         name: git-clone
       workspaces:
         - name: output
-          workspace: sourcecode
+          workspace: csv-service-sourcecode
     - name: maven
       params:
         - name: MAVEN_IMAGE
@@ -81,21 +81,20 @@ spec:
         name: maven
       workspaces:
         - name: source
-          workspace: sourcecode
+          workspace: csv-service-sourcecode
         - name: maven-settings
-          workspace: sourcecode
+          workspace: csv-service-sourcecode
     - name: buildah
       params:
         - name: IMAGE
-          value: >-
-            image-registry.openshift-image-registry.svc:5000/webtest/webtest:latest
+          value: quay.io/tsohlber/csv-service
         - name: BUILDER_IMAGE
           value: >-
             registry.redhat.io/rhel8/buildah@sha256:ac0b8714cc260c94435cab46fe41b3de0ccbc3d93e38c395fa9d52ac49e521fe
         - name: STORAGE_DRIVER
           value: vfs
         - name: DOCKERFILE
-          value: ./Containerfile
+          value: ./Dockerfile
         - name: CONTEXT
           value: .
         - name: TLSVERIFY
@@ -115,18 +114,17 @@ spec:
         name: buildah
       workspaces:
         - name: source
-          workspace: sourcecode
+          workspace: csv-service-sourcecode
     - name: rhacs-image-scan
       params:
         - name: rox_central_endpoint
-          value: rox-central-endpoint
+          value: rhacs-central-endpoint
         - name: rox_api_token
-          value: rox-api-token
+          value: rhacs-api-token
         - name: rox_image
           value: 'quay.io/stackrox-io/roxctl:3.71.0'
         - name: image
-          value: >-
-            image-registry.openshift-image-registry.svc:5000/webtest/webtest:latest
+          value: 'quay.io/tsohlber/csv-service:latest'
         - name: output_format
           value: json
         - name: insecure-skip-tls-verify
@@ -139,14 +137,13 @@ spec:
     - name: rhacs-image-check
       params:
         - name: rox_central_endpoint
-          value: rox-central-endpoint
+          value: rhacs-central-endpoint
         - name: rox_api_token
-          value: rox-api-token
+          value: rhacs-api-token
         - name: rox_image
           value: 'quay.io/stackrox-io/roxctl:3.71.0'
         - name: image
-          value: >-
-            image-registry.openshift-image-registry.svc:5000/webtest/webtest:latest
+          value: 'quay.io/tsohlber/csv-service:latest'
         - name: output_format
           value: table
         - name: insecure-skip-tls-verify
@@ -156,9 +153,29 @@ spec:
       taskRef:
         kind: Task
         name: rhacs-image-check
+    - name: rhacs-deployment-check
+      params:
+        - name: rox_central_endpoint
+          value: rhacs-central-endpoint
+        - name: rox_api_token
+          value: rhacs-api-token
+        - name: rox_image
+          value: 'quay.io/stackrox-io/roxctl:3.71.0'
+        - name: deployment
+          value: /workspace/source/openshift/csv-deployment.yaml
+        - name: output_format
+          value: table
+        - name: insecure-skip-tls-verify
+          value: 'true'
+      runAfter:
+        - buildah
+      taskRef:
+        kind: Task
+        name: rhacs-deployment-check
+      workspaces:
+        - name: source
+          workspace: csv-service-sourcecode
   workspaces:
-    - name: sourcecode
+    - name: csv-service-sourcecode
       optional: false
-  params: []
-  resources: []
-  finally: []
+

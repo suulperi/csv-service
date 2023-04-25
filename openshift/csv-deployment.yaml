@@ -22,7 +22,7 @@ spec:
             value: Tommi's Test Environment
         name: container
         image: >-
-            image-registry.openshift-image-registry.svc:5000/webtest/webtest:latest
+            quay.io/tsohlber/csv-service:latest
         ports:
           - containerPort: 8778
             protocol: TCP
@@ -36,7 +36,7 @@ spec:
       volumes:
       - name: data-volume
         persistentVolumeClaim:
-          claimName: csv-data
+          claimName: csv-service-data
   strategy:
     type: Recreate
   paused: false
