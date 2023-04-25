@@ -2,7 +2,7 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: csv-service
-  namespace: webtest
+  namespace: csv-service
   labels:
     app: csv-service
 spec:
@@ -10,7 +10,7 @@ spec:
     kind: Service
     name: csv-service
   tls: null
-  host: csvservice.webtest.apps.ocp.sohlberg.io
+  host: csvservice.csv-service.apps.rh-ocp-01.cool.lab
   path: /csv/api/v1
   port:
     targetPort: 8080-tcp
