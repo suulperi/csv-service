@@ -19,10 +19,10 @@ spec:
           - name: DATA_FOLDER
             value: /data
           - name: OPENSHIFT_ENV_VAR
-            value: Tommi's Test Environment
+            value: Tommi's Test Environment - Spring Boot 2.7.11
         name: container
         image: >-
-            quay.io/tsohlber/csv-service:0.4
+            quay.io/tsohlber/csv-service:0.1
         ports:
           - containerPort: 8778
             protocol: TCP
