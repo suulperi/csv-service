@@ -19,7 +19,7 @@ spec:
           - name: DATA_FOLDER
             value: /data
           - name: OPENSHIFT_ENV_VAR
-            value: Tommi's Test Environment - Spring Boot 2.7.11
+            value: Tommi's Test Environment
         name: container
         image: >-
             quay.io/tsohlber/csv-service:0.1
