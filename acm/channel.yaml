@@ -1,0 +1,10 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: ggithubcom-suulperi-csv-service
+  namespace: ggithubcom-suulperi-csv-service-ns
+  annotations:
+    apps.open-cluster-management.io/reconcile-rate: medium
+spec:
+  type: Git
+  pathname: https://github.com/suulperi/csv-service
